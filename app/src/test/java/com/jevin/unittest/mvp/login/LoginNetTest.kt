@@ -1,8 +1,8 @@
-package com.jevin.unittest
+package com.jevin.unittest.mvp.login
 
 import com.google.gson.Gson
+import com.jevin.unittest.BaseNetTest
 import com.jevin.unittest.bean.LoginBean
-import com.jevin.unittest.mvp.login.LoginPresenter
 import com.jevin.unittest.net.BaseResponse
 import com.jevin.unittest.net.NetErrorException
 import io.reactivex.subscribers.TestSubscriber
@@ -14,47 +14,47 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 class LoginNetTest : BaseNetTest<LoginBean>() {
-    var presenter: LoginPresenter = LoginPresenter()
+    var model:LoginModel = LoginModel()
     var request = HashMap<String, String>()
 //    var test: TestSubscriber<BaseResponse<LoginBean>> = TestSubscriber()
 
     override fun onBeforeTest() {
         request["name"] = "Jevin"
         request["password"] = "123456"
-        presenter.schedulerProvider = provider
-        presenter.box = box
+        model.schedulerProvider = provider
+        model.box = box
     }
 
-    override fun onTestSuccess():OnAssertResult {
+    override fun onTestSuccess(): OnAssertResult {
         var test: TestSubscriber<BaseResponse<LoginBean>> = TestSubscriber()
-        presenter.login(request["name"]!!, request["password"]!!)
+        model.login(request["name"]!!, request["password"]!!)
             .subscribe(test)
-        return object :OnAssertResult{
+        return object : OnAssertResult {
             override fun onAssertResult() {
                 test.assertNoErrors()
             }
         }
     }
 
-    override fun onTestFail():OnAssertResult {
+    override fun onTestFail(): OnAssertResult {
         var test: TestSubscriber<BaseResponse<LoginBean>> = TestSubscriber()
 //        presenter.retryTimes = 1
-        presenter.retryTimes = 3
-        presenter.login(request["name"]!!, request["password"]!!)
+        model.retryTimes = 3
+        model.login(request["name"]!!, request["password"]!!)
             .subscribe(test)
-        return object :OnAssertResult{
+        return object : OnAssertResult {
             override fun onAssertResult() {
                 test.assertError(NetErrorException::class.java)
             }
         }
     }
 
-    override fun onTestBadNet():OnAssertResult {
+    override fun onTestBadNet(): OnAssertResult {
         var test: TestSubscriber<BaseResponse<LoginBean>> = TestSubscriber()
-        presenter.retryTimes = 3
-        presenter.login(request["name"]!!, request["password"]!!)
+        model.retryTimes = 3
+        model.login(request["name"]!!, request["password"]!!)
             .subscribe(test)
-        return object :OnAssertResult{
+        return object : OnAssertResult {
             override fun onAssertResult() {
                 test.assertError(IOException::class.java)
             }
@@ -63,10 +63,10 @@ class LoginNetTest : BaseNetTest<LoginBean>() {
 
     override fun onTest404(): OnAssertResult {
         var test: TestSubscriber<BaseResponse<LoginBean>> = TestSubscriber()
-        presenter.retryTimes = 3
-        presenter.login(request["name"]!!, request["password"]!!)
+        model.retryTimes = 3
+        model.login(request["name"]!!, request["password"]!!)
             .subscribe(test)
-        return object :OnAssertResult{
+        return object : OnAssertResult {
             override fun onAssertResult() {
                 test.assertError(HttpException::class.java)
             }

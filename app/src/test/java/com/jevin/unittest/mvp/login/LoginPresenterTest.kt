@@ -1,29 +1,33 @@
 package com.jevin.unittest.mvp.login
 
-import okhttp3.mockwebserver.MockWebServer
-import org.junit.Assert.*
-import org.junit.Before
-import java.io.IOException
+import com.jevin.unittest.bean.LoginBean
+import com.jevin.unittest.net.BaseResponse
+import io.reactivex.Flowable
+import org.junit.Test
+import org.mockito.Mockito
 
-class LoginPresenterTest{
+class LoginPresenterTest {
     var presenter = LoginPresenter()
-    var server:MockWebServer = MockWebServer()
+    var mockView = Mockito.mock(LoginContract.View::class.java)
+    var mockModel = Mockito.mock(LoginContract.Model::class.java)
 
-    @Before
-    fun before(){
-        try {
-            server!!.start()
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
+    init {
+        presenter.attachView(mockView)
+        presenter.model = mockModel
     }
 
-    fun testLogin(){
-        presenter.login("maomao","dashazi")
-            .subscribe({
+    @Test
+    fun testClickLogin() {
+        presenter.clickLogin("", "")
+        Mockito.verify(mockView).showErrorNotice("请输入用户名")
 
-            },{
+        presenter.clickLogin("Jevin", "")
+        Mockito.verify(mockView).showErrorNotice("请输入密码")
 
-            })
+        var reponse = BaseResponse<LoginBean>()
+        reponse.data = LoginBean()
+        Mockito.`when`(mockModel.login(Mockito.anyString(),Mockito.anyString())).thenReturn(Flowable.just(reponse))
+        presenter.clickLogin("Jevin", "123456")
+        Mockito.verify(mockModel).login("Jevin", "123456")
     }
 }
