@@ -29,6 +29,8 @@ abstract class BaseNetTest<T> {
 
     protected abstract fun onTestBadNet(): OnAssertResult
 
+    protected abstract fun onTest404():OnAssertResult
+
     protected abstract fun onCheckRequest(request: RecordedRequest)
 
     protected abstract fun setSuccessReponseData(reponse: BaseResponse<T>): BaseResponse<T>
@@ -36,6 +38,8 @@ abstract class BaseNetTest<T> {
     protected abstract fun setFailReponseData(reponse: BaseResponse<T>): BaseResponse<T>
 
     protected abstract fun setBadNetReponseData(mockResponse: MockResponse): MockResponse
+
+    protected abstract fun set404ReponseData(mockResponse: MockResponse):MockResponse
 
     protected abstract fun onAfterTest()
 
@@ -65,8 +69,9 @@ abstract class BaseNetTest<T> {
         mockApi(onTestSuccess())
         enqueueReponse(createReponse(), setFailReponseData(BaseResponse<T>()))
         mockApi(onTestFail())
+        enqueueReponse(set404ReponseData(createReponse()),setSuccessReponseData(BaseResponse<T>()))
+        mockApi(onTest404())
         enqueueReponse(setBadNetReponseData(createReponse()), setSuccessReponseData(BaseResponse<T>()))
-        onTestBadNet()
         mockApi(onTestBadNet())
     }
 
@@ -81,11 +86,11 @@ abstract class BaseNetTest<T> {
         }
     }
 
-    fun enqueueReponse(mockResponse: MockResponse, reponse: BaseResponse<T>) {
+    private fun enqueueReponse(mockResponse: MockResponse, reponse: BaseResponse<T>) {
         server?.enqueue(mockResponse.setBody(Gson().toJson(reponse)))
     }
 
-    fun createReponse(): MockResponse {
+    private fun createReponse(): MockResponse {
         return MockResponse()
             .addHeader("Content-Type", "application/json;charset=utf-8")
     }

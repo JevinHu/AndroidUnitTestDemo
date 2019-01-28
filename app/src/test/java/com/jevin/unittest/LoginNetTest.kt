@@ -9,6 +9,7 @@ import io.reactivex.subscribers.TestSubscriber
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.Assert
+import retrofit2.HttpException
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -60,6 +61,18 @@ class LoginNetTest : BaseNetTest<LoginBean>() {
         }
     }
 
+    override fun onTest404(): OnAssertResult {
+        var test: TestSubscriber<BaseResponse<LoginBean>> = TestSubscriber()
+        presenter.retryTimes = 3
+        presenter.login(request["name"]!!, request["password"]!!)
+            .subscribe(test)
+        return object :OnAssertResult{
+            override fun onAssertResult() {
+                test.assertError(HttpException::class.java)
+            }
+        }
+    }
+
     override fun onCheckRequest(request: RecordedRequest) {
         Assert.assertEquals("/test/login", request.path)
         Assert.assertEquals("POST", request.method)
@@ -81,6 +94,11 @@ class LoginNetTest : BaseNetTest<LoginBean>() {
 
     override fun setBadNetReponseData(mockResponse: MockResponse): MockResponse {
         mockResponse.throttleBody(20,20,TimeUnit.SECONDS)
+        return mockResponse
+    }
+
+    override fun set404ReponseData(mockResponse: MockResponse): MockResponse {
+        mockResponse.setResponseCode(404)
         return mockResponse
     }
 
