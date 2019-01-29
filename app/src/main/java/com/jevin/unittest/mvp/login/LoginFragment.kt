@@ -11,6 +11,18 @@ class LoginFragment:BaseFragment<LoginContract.View,LoginContract.Presenter>(),L
 
     }
 
+    override fun showFailResult(text: String) {
+
+    }
+
+    override fun showSuccessResult(text: String) {
+
+    }
+
+    override fun showException(text: String) {
+
+    }
+
     override fun go2Register() {
 
     }

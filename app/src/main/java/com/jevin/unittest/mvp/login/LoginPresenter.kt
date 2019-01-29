@@ -1,6 +1,7 @@
 package com.jevin.unittest.mvp.login
 
 import io.reactivex.disposables.CompositeDisposable
+import java.io.IOException
 
 class LoginPresenter : LoginContract.Presenter {
     lateinit var view: LoginContract.View
@@ -21,9 +22,26 @@ class LoginPresenter : LoginContract.Presenter {
             else -> {
                 val disposable = model.login(name, password)
                     .subscribe({
-
+                        when {
+                            it.code == 80003 -> {//用户不存在
+                                view.showFailResult("用户不存在")
+                            }
+                            it.code == 80004 -> {//用户名或密码不正确
+                                view.showFailResult("用户名或密码不正确")
+                            }
+                            else -> {
+                                view.showSuccessResult("登录成功")
+                            }
+                        }
                     }, {
-
+                        when(it){
+                            is IOException->{
+                                view.showException("网络异常，请检查网络")
+                            }
+                            else->{
+                                view.showException("未知异常")
+                            }
+                        }
                     })
                 compositeDisposable.add(disposable)
             }
