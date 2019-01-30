@@ -24,10 +24,6 @@ class LoginPresenterTest {
         presenter.clickLogin("Jevin", "")
         Mockito.verify(mockView).showErrorNotice("请输入密码")
 
-        mockSuccessNetResult(0)
-        Mockito.verify(mockModel).login("Jevin", "123456")
-        Mockito.verify(mockView).showSuccessResult(Mockito.anyString())
-
         mockSuccessNetResult(80003)
         Mockito.verify(mockModel).login("Jevin", "123456")
         Mockito.verify(mockView).showFailResult("用户不存在")
@@ -35,9 +31,15 @@ class LoginPresenterTest {
         mockSuccessNetResult(80004)
         Mockito.verify(mockModel).login("Jevin", "123456")
         Mockito.verify(mockView).showFailResult("用户名或密码不正确")
+
+        mockSuccessNetResult(0)
+        Mockito.verify(mockModel).login("Jevin", "123456")
+        Mockito.verify(mockView).showSuccessResult(Mockito.anyString())
+
     }
 
     fun mockSuccessNetResult(code:Int){
+        Mockito.reset(mockModel,mockView)
         var reponse = BaseResponse<LoginBean>()
         reponse.data = LoginBean()
         reponse.code = code
