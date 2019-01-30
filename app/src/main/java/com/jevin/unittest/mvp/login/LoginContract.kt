@@ -13,7 +13,6 @@ interface LoginContract {
         fun showFailResult(text: String)
         fun showSuccessResult(text: String)
         fun showException(text: String)
-        fun go2Register()
         fun clear()
     }
 

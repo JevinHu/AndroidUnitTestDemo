@@ -35,11 +35,8 @@ class LoginFragment:BaseFragment<LoginContract.View,LoginContract.Presenter>(),L
         Toast.makeText(context,text,Toast.LENGTH_SHORT).show()
     }
 
-    override fun go2Register() {
-
-    }
-
     override fun clear() {
-
+        edtName.setText("")
+        edtPassword.setText("")
     }
 }
